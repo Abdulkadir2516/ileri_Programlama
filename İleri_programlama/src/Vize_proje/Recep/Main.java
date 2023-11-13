@@ -17,18 +17,18 @@ public class Main {
         server.start();
 
         // Client 1, mesaj gönderen
-        Client1 client1 = new Client1("localhost", 12345);
+        Client1 client1 = new Client1("192.168.1.100", 2516);
         
         // Client 2, mesaj alan
-        Client2 client2 = new Client2("localhost", 12345);
+        //Client2 client2 = new Client2("localhost", 12345);
 
         client1.start();
-        client2.start();
+        //client2.start();
         
          try {
             server.join();
             client1.join();
-            client2.join();
+            //client2.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

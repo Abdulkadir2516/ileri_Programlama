@@ -28,7 +28,7 @@ public class Server extends Thread {
 
     @Override
     public void run() {
-        try (ServerSocket serverSocket = new ServerSocket(12345)) {
+        try (ServerSocket serverSocket = new ServerSocket(2516)) {
             System.out.println("Server hazır!");
 
             while (true) {
