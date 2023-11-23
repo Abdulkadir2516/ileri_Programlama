@@ -13,7 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
 import java.lang.String;
+import static java.lang.System.exit;
 import static java.lang.Thread.MIN_PRIORITY;
+import java.util.AbstractList;
+import java.util.LinkedList;
 
 /**
  *
@@ -27,6 +30,8 @@ public class Server extends javax.swing.JFrame {
     private final List<DataOutputStream> clientOutputStreams = new ArrayList<>();
     private DataOutputStream client2OutputStream;
     private int port;
+
+    LinkedList<Socket> clients = new LinkedList<>(); ///---> Generic Linked List Tanımlaması <---\\\
 
     public void setClient2OutputStream(DataOutputStream outputStream) {
         this.client2OutputStream = outputStream;
@@ -51,7 +56,6 @@ public class Server extends javax.swing.JFrame {
         Server_Start = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         port_numbers = new javax.swing.JComboBox<>();
-        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setSize(new java.awt.Dimension(0, 0));
@@ -95,16 +99,9 @@ public class Server extends javax.swing.JFrame {
 
         jLabel4.setText("Ağdaki Cihazlar: ");
 
-        port_numbers.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                port_numbersİtemStateChanged(evt);
-            }
-        });
-
-        jButton1.setText("jButton1");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        port_numbers.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                port_numbersActionPerformed(evt);
             }
         });
 
@@ -133,11 +130,11 @@ public class Server extends javax.swing.JFrame {
                                 .addComponent(Server_Start))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(client_ip, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel4))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jButton1)
-                                .addGap(29, 29, 29))))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel4)
+                                        .addGap(0, 0, Short.MAX_VALUE))
+                                    .addComponent(client_ip, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(122, 122, 122))))
                     .addComponent(jLabel2)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 501, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(32, Short.MAX_VALUE))
@@ -152,21 +149,16 @@ public class Server extends javax.swing.JFrame {
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(port_number, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(Server_Start, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(client_ip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(port_numbers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(29, 29, 29)
-                        .addComponent(jButton1)))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(client_ip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(port_numbers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(38, Short.MAX_VALUE))
         );
 
@@ -234,12 +226,15 @@ public class Server extends javax.swing.JFrame {
     }//GEN-LAST:event_Server_StartActionPerformed
 
     private void bilgileri_yazdır(Socket clientSocket) {
-        
+
         System.out.println("Bağlanan IP: " + clientSocket.getInetAddress());
         System.out.println("Client's host name is " + clientSocket.getInetAddress().getHostName());
-        client_ip.addItem(clientSocket.getInetAddress().toString());
+
+
+        /*
         System.out.println(clientSocket.getLocalPort());
-        
+        System.out.println(client_ip.getSelectedItem().toString());
+        System.out.println(port_numbers.getSelectedItem().toString());*/
     }
 
     private void client_handler(Socket clientSocket) {
@@ -250,10 +245,13 @@ public class Server extends javax.swing.JFrame {
             while (isActive) {
                 try {
                     String message = dataInputStream.readUTF();
-                    System.out.println("Server'a gelen mesaj: " + message);
+                    System.out.println("Server'a gelen mesaj: " + message +" "+clientSocket.getInetAddress().getHostName());
+
+                    dataOutputStream.writeUTF(message);
+                    dataOutputStream.flush();
 
                     // Gelen mesajı diğer istemcilere iletmek için sunucuya bildirimde bulun
-                    // this.broadcastMessage(message, dataOutputStream);
+                    this.broadcastMessage(message, dataOutputStream);
                 } catch (EOFException eof) {
                     System.out.println("Client1 bağlantısı sonlandı.");
                     isActive = false; // İstemci bağlantısı kapandığında aktif durumu false yap
@@ -271,9 +269,25 @@ public class Server extends javax.swing.JFrame {
             }
         } catch (IOException | InterruptedException e) {
             Server nesne = new Server();
-            JOptionPane.showMessageDialog(nesne, e, "Yürütme Hatasi ClientHandler", MIN_PRIORITY);
+            //JOptionPane.showMessageDialog(nesne, e, "Yürütme Hatasi ClientHandler", MIN_PRIORITY);
             e.printStackTrace(System.out);
         }
+    }
+
+    // Diğer client'lara mesajı gönderen metod
+    private void broadcastMessage(String message, DataOutputStream dataOutputStream) {
+
+        for (DataOutputStream clientOutputStream : clientOutputStreams) {
+            try {
+                if (clientOutputStream != dataOutputStream) { // Gönderen istemciye tekrar gönderme
+                    clientOutputStream.writeUTF(message);
+                    clientOutputStream.flush();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     private void server_start() {
@@ -292,6 +306,22 @@ public class Server extends javax.swing.JFrame {
 
                 if (clientSocket.isConnected()) {
                     bilgileri_yazdır(clientSocket);
+                    clients.add(clientSocket);
+
+                    for (int i = 0; i < clients.size(); i++) {
+
+                        String a = port_numbers.getSelectedItem().toString();
+                        String b = String.valueOf(clients.get(i).getLocalPort());
+
+                        if (a.equals(b) && !clients.isEmpty()) {
+                            
+                            this.broadcastMessage(clients.get(i).getInetAddress().toString(), clientOutputStream);
+
+                            
+                        }
+
+                    }
+
 
                 }
 
@@ -314,28 +344,25 @@ public class Server extends javax.swing.JFrame {
     }
 
 
-    private void port_numbersİtemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_port_numbersİtemStateChanged
+    private void port_numbersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_port_numbersActionPerformed
+        System.out.println(port_numbers.getSelectedItem().toString());
 
+        client_ip.removeAllItems();
 
-    }//GEN-LAST:event_port_numbersİtemStateChanged
+        for (int i = 0; i < clients.size(); i++) {
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+            String a = port_numbers.getSelectedItem().toString();
+            String b = String.valueOf(clients.get(i).getLocalPort());
 
-        Thread thread1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                String hedefIP = "192.168.1"; // Taranacak IP adresi
-                int port = Integer.valueOf(port_numbers.getSelectedItem().toString());            // Bitiş portu
-                System.out.println(port);
-                tara(hedefIP, port);
+            if (a.equals(b) && !clients.isEmpty()) {
+                client_ip.addItem(clients.get(i).getInetAddress().toString());
             }
-        });
 
-        thread1.start();
+        }
+        System.out.println("**************************************");
 
 
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_port_numbersActionPerformed
 
     public static void main(String args[]) {
 
@@ -350,7 +377,6 @@ public class Server extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Server_Start;
     public javax.swing.JComboBox<String> client_ip;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

@@ -174,10 +174,12 @@ public class Client extends javax.swing.JFrame {
                 int server_port = Integer.valueOf(port.getText().toString());
 
                 try {
-                    
+
                     baglan(serverAddress, server_port);
+                    tara("192.168.1", server_port);
+
                     getMessage();
-                    
+
                 } catch (IOException ex) {
                     Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -191,31 +193,48 @@ public class Client extends javax.swing.JFrame {
     }//GEN-LAST:event_connectActionPerformed
 
     private void sendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendActionPerformed
-        
+
         //serverSocket.getInetAddress().getHostName();
-        send(serverSocket.getInetAddress().getHostName() + " " +content.getText().toString());
-        
+        send(serverSocket.getInetAddress().getHostName() + " " + content.getText().toString());
+
     }//GEN-LAST:event_sendActionPerformed
 
     public void baglan(String serverAddress, int serverPort) throws IOException {
-        
-        try{
-            
+
+        try {
+
             this.serverSocket = new Socket(serverAddress, serverPort);
-            serverSocket.getChannel();
+
             System.out.println("Client 1 hazır!");
-            
+
             JOptionPane.showMessageDialog(this, "Client Hazır");
-            
 
         } catch (IOException ex) {
             System.err.println(ex);
             System.out.println("Servera bağlanılamıyor. Lütfen serverin açık olduğundan emin olun.");
         }
     }
-    
-    public void getMessage()
-    {
+
+    private static void tara(String hedefIP, int port) {
+        System.out.println("Bağlı IP Adresleri Tarama Başlıyor...");
+
+        for (int i = 1; i <= 255; i++) {
+            String hedef = hedefIP + "." + i;
+            try {
+                Socket socket = new Socket();
+                socket.connect(new java.net.InetSocketAddress(hedef, port), 100); // 1000 ms (1 saniye) süreyle bağlanmaya çalış
+
+                System.out.println("IP Adresi: " + hedef + " - Port " + port + " açık");
+
+            } catch (Exception e) {
+                // Bağlantı hatası oluştuğunda devam et
+            }
+        }
+
+        System.out.println("Bağlı IP Adresleri Tarama Tamamlandı.");
+    }
+
+    public void getMessage() {
         try {
             DataInputStream dataInputStream = new DataInputStream(serverSocket.getInputStream());
 
@@ -224,7 +243,6 @@ public class Client extends javax.swing.JFrame {
                     String message = dataInputStream.readUTF();
                     System.out.println("gelen mesaj: " + message);
 
-                    
                 } catch (EOFException eof) {
                     System.out.println("Client1 bağlantısı sonlandı.");
                     isActive = false; // İstemci bağlantısı kapandığında aktif durumu false yap
@@ -242,17 +260,17 @@ public class Client extends javax.swing.JFrame {
             }
         } catch (IOException | InterruptedException e) {
             Client nesne = new Client();
-            JOptionPane.showMessageDialog(nesne, e, "Yürütme Hatasi ClientHandler", MIN_PRIORITY);
+            //JOptionPane.showMessageDialog(nesne, e, "Yürütme Hatasi ClientHandler", MIN_PRIORITY);
             e.printStackTrace(System.out);
         }
     }
 
     public void send(String message) {
-        try{
-            
+        try {
+
             DataOutputStream dataOutputStream = new DataOutputStream(this.serverSocket.getOutputStream());
             dataOutputStream.writeUTF(message);
-            
+
             dataOutputStream.flush();
 
         } catch (IOException ex) {

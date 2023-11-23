@@ -12,12 +12,12 @@ package Vize_proje.Recep;
 // Main.java
 public class Main {
     public static void main(String[] args) {
-        Server server = new Server();
+        //Server server = new Server();
         // Server'i baslat
-        server.start();
+        //server.start();
 
         // Client 1, mesaj gönderen
-        Client1 client1 = new Client1("192.168.1.100", 2516);
+        Client1 client1 = new Client1("192.168.1.100", 2518);
         
         // Client 2, mesaj alan
         //Client2 client2 = new Client2("localhost", 12345);
@@ -26,7 +26,7 @@ public class Main {
         //client2.start();
         
          try {
-            server.join();
+            //server.join();
             client1.join();
             //client2.join();
         } catch (InterruptedException e) {
