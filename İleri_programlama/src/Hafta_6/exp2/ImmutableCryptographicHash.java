@@ -6,34 +6,32 @@ package Hafta_6.exp2;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+//import javax.xml.bind.DatatypeConverter;
 
 /**
  *
- * @author abdul
+ * @author recep
  */
 public class ImmutableCryptographicHash {
 
-    private final MessageDigest md;
+    //private final MessageDigest md;
+    public ImmutableCryptographicHash() throws NoSuchAlgorithmException {
 
-    public ImmutableCryptographicHash(String input) throws NoSuchAlgorithmException {
-        md = MessageDigest.getInstance("md5");
     }
 
-    public String digest(String input) {
+    public String digest(String input) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] digest = md.digest(input.getBytes());
-
         StringBuilder sb = new StringBuilder();
-
         for (byte b : digest) {
             sb.append(String.format("%02X", b));
         }
+        System.out.println("sb: " + sb.toString());
         return sb.toString();
-
     }
 
-    public boolean isTrue(String input, String md5) {
+    public boolean isTrue(String input, String md5) throws NoSuchAlgorithmException {
         return digest(input).equals(md5.toUpperCase());
-
     }
 
 }

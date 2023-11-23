@@ -5,69 +5,72 @@
 package Hafta_6.exp2;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
+ * md5 bak
  *
- * @author abdul
+ * @author recep
  */
 public class Program {
-     
-    public static void main(String[] args)
-    {
-        //immutableObject();
-        mutableObject();
-        
-    }
 
-    public static void mutableObject() {
+    public static void main(String[] args) {
+        mutableObject();
+        //immutableObject();
+    }
+    //ikisinin de true dönmesi gerekiyor
+    private static void mutableObject() {
         MutableCryptographicHash mch;
-        
         try {
             mch = new MutableCryptographicHash("Bilgisayar Mühendisliği");
-
-        } catch (NoSuchAlgorithmException e) {
+            //mch = new MutableCryptographicHash("a");
+        } catch (NoSuchAlgorithmException ex) {
             return;
         }
-        
-        new Thread(() -> {
-            System.out.println("1- " + mch.toString());
-            System.out.println("1- " + mch.isTrue("ba4d3296aef7001e6d79e429202358e5"));
 
+        new Thread(() -> {
+            try {
+                System.out.println("1- " + mch.isTrue("ba4d3296aef7001e6d79e429202358e5"));
+            } catch (NoSuchAlgorithmException ex) {
+                Logger.getLogger(Program.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }).start();
-            
+
         new Thread(() -> {
             mch.setInput("Balıkesir Üniversitesi");
-            System.out.println("2- " + mch.toString());
-            System.out.println("2- " + mch.isTrue("ba4d3296aef7001e6d79e429202358e5"));
-
+            try {
+                System.out.println("2- " + mch.isTrue("51bc9c1d3fb93a560ddb37e15d84220a"));
+            } catch (NoSuchAlgorithmException ex) {
+                Logger.getLogger(Program.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }).start();
-
-       
     }
-
-    public static void ImmutableObject() {
+    
+    //true dönmesi gerekiyor ikisininde 
+    private static void immutableObject() {
         ImmutableCryptographicHash ich;
-        
         try {
-            ich = new ImmutableCryptographicHash("Bilgisayar Mühendisliği");
-
-        } catch (NoSuchAlgorithmException e) {
+            ich = new ImmutableCryptographicHash();
+        } catch (NoSuchAlgorithmException ex) {
             return;
         }
-        
-        new Thread(() -> {
-            System.out.println("1- " + ich.toString());
-            System.out.println("1- " + ich.isTrue("Balıkesir Üniversitesi","ba4d3296aef7001e6d79e429202358e5"));
 
-        }).start();
-            
         new Thread(() -> {
-            System.out.println("2- " + ich.toString());
-            System.out.println("2- " + ich.isTrue("Balıkesir Üniversitesi","ba4d3296aef7001e6d79e429202358e5"));
-
+            try {
+                System.out.println("1- " + ich.isTrue("Bilgisayar Mühendisliği", "ba4d3296aef7001e6d79e429202358e5"));
+            } catch (NoSuchAlgorithmException ex) {
+                Logger.getLogger(Program.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }).start();
 
-       
+        new Thread(() -> {
+            try {
+                System.out.println("2- " + ich.isTrue("Balıkesir Üniversitesi","51bc9c1d3fb93a560ddb37e15d84220a"));
+            } catch (NoSuchAlgorithmException ex) {
+                Logger.getLogger(Program.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }).start();
     }
 
 }
