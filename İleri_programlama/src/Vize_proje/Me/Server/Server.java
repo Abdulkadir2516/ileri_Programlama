@@ -245,7 +245,7 @@ public class Server extends javax.swing.JFrame {
             while (isActive) {
                 try {
                     String message = dataInputStream.readUTF();
-                    System.out.println("Server'a gelen mesaj: " + message +" "+clientSocket.getInetAddress().getHostName());
+                    System.out.println("Server'a gelen mesaj: " + message );
 
                     dataOutputStream.writeUTF(message);
                     dataOutputStream.flush();
