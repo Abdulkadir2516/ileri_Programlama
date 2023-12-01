@@ -15,8 +15,11 @@ import javax.swing.JOptionPane;
 import java.lang.String;
 import static java.lang.System.exit;
 import static java.lang.Thread.MIN_PRIORITY;
+import java.time.LocalDateTime;
 import java.util.AbstractList;
 import java.util.LinkedList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -30,6 +33,7 @@ public class Server extends javax.swing.JFrame {
     private final List<DataOutputStream> clientOutputStreams = new ArrayList<>();
     private DataOutputStream client2OutputStream;
     private int port;
+    
 
     LinkedList<Socket> clients = new LinkedList<>(); ///---> Generic Linked List Tanımlaması <---\\\
 
@@ -50,7 +54,7 @@ public class Server extends javax.swing.JFrame {
         client_ip = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        mesaj_trafigi = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
         port_number = new javax.swing.JTextField();
         Server_Start = new javax.swing.JButton();
@@ -72,7 +76,7 @@ public class Server extends javax.swing.JFrame {
 
         jLabel2.setText("Port Seçin");
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        mesaj_trafigi.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null},
                 {null, null, null},
@@ -83,7 +87,7 @@ public class Server extends javax.swing.JFrame {
                 "Gönderen", "Alıcı", "İçerik"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(mesaj_trafigi);
 
         jLabel3.setText("Port Giriniz:");
 
@@ -200,7 +204,7 @@ public class Server extends javax.swing.JFrame {
     private void Server_StartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Server_StartActionPerformed
         // TODO add your handling code here:
 
-        this.port = Integer.valueOf(port_number.getText().toString());
+        this.port = Integer.parseInt(port_number.getText());
 
         if (comboBoxContainsItem(port_numbers, String.valueOf(port))) {
             JOptionPane.showMessageDialog(this, "Port Numarası zaten var");
@@ -249,9 +253,44 @@ public class Server extends javax.swing.JFrame {
 
                     dataOutputStream.writeUTF(message);
                     dataOutputStream.flush();
-
+                    
                     // Gelen mesajı diğer istemcilere iletmek için sunucuya bildirimde bulun
                     this.broadcastMessage(message, dataOutputStream);
+                    
+                     // IP adreslerini çıkarmak için düzenli ifade
+                    String ipRegex = "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b";
+
+                    String pureText = message.replaceAll(ipRegex, "").trim();
+
+                    // Pattern ve Matcher oluştur
+                    Pattern pattern = Pattern.compile(ipRegex);
+                    Matcher matcher = pattern.matcher(message);
+
+                    // Gönderen ve alıcı IP adreslerini bul
+                    String senderIP = null;
+                    String receiverIP = null;
+
+                    // Eşleşen IP adreslerini yazdır
+                    int count = 0;
+                    while (matcher.find()) {
+                        if (count == 0) {
+                            senderIP = matcher.group();
+                        } else if (count == 1) {
+                            receiverIP = matcher.group();
+                        }
+                        count++;
+                    }
+                   
+                    
+                    // Yeni bir satır ekleyin
+                    Object[] newRow = {senderIP, receiverIP, pureText};
+                    // Veriyi ekleyin
+                    ((javax.swing.table.DefaultTableModel) mesaj_trafigi.getModel()).addRow(newRow);
+
+                    
+                    
+                    
+                    
                 } catch (EOFException eof) {
                     System.out.println("Client1 bağlantısı sonlandı.");
                     isActive = false; // İstemci bağlantısı kapandığında aktif durumu false yap
@@ -268,7 +307,7 @@ public class Server extends javax.swing.JFrame {
                 System.exit(0); // Programı sonlandır
             }
         } catch (IOException | InterruptedException e) {
-            Server nesne = new Server();
+
             //JOptionPane.showMessageDialog(nesne, e, "Yürütme Hatasi ClientHandler", MIN_PRIORITY);
             e.printStackTrace(System.out);
         }
@@ -382,7 +421,7 @@ public class Server extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JTable mesaj_trafigi;
     private javax.swing.JTextField port_number;
     private javax.swing.JComboBox<String> port_numbers;
     // End of variables declaration//GEN-END:variables
