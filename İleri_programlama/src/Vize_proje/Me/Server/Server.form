@@ -136,7 +136,7 @@
         <Component class="javax.swing.JTable" name="mesaj_trafigi">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-              <Table columnCount="3" rowCount="4">
+              <Table columnCount="3" rowCount="0">
                 <Column editable="true" title="G&#xf6;nderen" type="java.lang.Object"/>
                 <Column editable="true" title="Al&#x131;c&#x131;" type="java.lang.Object"/>
                 <Column editable="true" title="&#x130;&#xe7;erik" type="java.lang.Object"/>

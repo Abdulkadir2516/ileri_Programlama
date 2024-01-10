@@ -18,7 +18,12 @@ import javax.swing.JTextArea;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.table.DefaultTableModel;
-
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 /**
  * @author abdul
  */
@@ -27,6 +32,34 @@ public class Client extends javax.swing.JFrame {
     private Socket serverSocket;
     private boolean isActive = true; // Başlangıçta aktif durumda
 
+    private List<String> myip = new ArrayList<>();
+    
+    private void find_ip()
+    {
+        try {
+            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+
+            while (networkInterfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = networkInterfaces.nextElement();
+                Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
+
+                while (inetAddresses.hasMoreElements()) {
+                    InetAddress inetAddress = inetAddresses.nextElement();
+
+                    // IPv4 adresini kontrol et
+                    if (inetAddress.isSiteLocalAddress() && !inetAddress.isLoopbackAddress()
+                            && inetAddress.getHostAddress().indexOf(":") == -1) {
+                        System.out.println(inetAddress.getHostAddress());
+                        myip.add(inetAddress.getHostAddress());
+
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+    }
+    
     public Client() {
         initComponents();
     }
@@ -240,7 +273,7 @@ public class Client extends javax.swing.JFrame {
     }//GEN-LAST:event_ip_adress1ActionPerformed
 
     public void baglan(String serverAddress, int serverPort) throws IOException {
-
+        find_ip();
         try {
 
             this.serverSocket = new Socket(serverAddress, serverPort);
@@ -253,25 +286,6 @@ public class Client extends javax.swing.JFrame {
         }
     }
 
-    private static void tara(String hedefIP, int port) {
-        System.out.println("Bağlı IP Adresleri Tarama Başlıyor...");
-
-        for (int i = 1; i <= 255; i++) {
-            String hedef = hedefIP + "." + i;
-            try {
-                Socket socket = new Socket();
-                socket.connect(new java.net.InetSocketAddress(hedef, port), 100); // 1000 ms (1 saniye) süreyle bağlanmaya çalış
-
-                System.out.println("IP Adresi: " + hedef + " - Port " + port + " açık");
-
-            } catch (Exception e) {
-                // Bağlantı hatası oluştuğunda devam et
-            }
-        }
-
-        System.out.println("Bağlı IP Adresleri Tarama Tamamlandı.");
-    }
-
     public void getMessage() {
         try {
             DataInputStream dataInputStream = new DataInputStream(serverSocket.getInputStream());
@@ -280,7 +294,7 @@ public class Client extends javax.swing.JFrame {
             while (isActive) {
                 try {
                     String message = dataInputStream.readUTF();
-
+                    System.out.println("cliente gelen orjinal mesaj: " + message);
                     // IP adreslerini çıkarmak için düzenli ifade
                     String ipRegex = "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b";
 
@@ -296,7 +310,7 @@ public class Client extends javax.swing.JFrame {
 
                     // Gönderen ve alıcı IP adreslerini bul
                     String senderIP = null;
-                    String receiverIP = null;
+                    String receiverIP = ipAddress;
 
                     // Eşleşen IP adreslerini yazdır
                     int count = 0;
@@ -308,9 +322,21 @@ public class Client extends javax.swing.JFrame {
                         }
                         count++;
                     }
-                   
+                    System.out.println("Cliente gelen senderIp=> "+senderIP);
+                    System.out.println("Cliente gelen receiverIP=> "+receiverIP);
+                    System.out.println("Cliente gelen pureText=> "+pureText);
                     
-                    if (ipAddress.equals(receiverIP) ){
+                    boolean check = false;
+                    for (int i = 0; i < myip.size(); i++) {
+                        System.out.println("");
+                        if(receiverIP.equals(myip.get(i)))
+                        {
+                           check = true; 
+                        }
+                    }
+                    
+                    if (check){
+                                                
                         // Yeni bir satır ekleyin
                         Object[] newRow = {currentDateTime.toString(), senderIP, pureText};
                         // Veriyi ekleyin
@@ -325,16 +351,17 @@ public class Client extends javax.swing.JFrame {
             }
 
             // Bekleme süresi
-            Thread.sleep(2000); // 2 saniye bekleyecek
+            Thread.sleep(10000); // 2 saniye bekleyecek
 
             // İstemciden gelen yeni veri yoksa sonlan
-            if (!isActive) {
+            
+            /*if (!isActive) {
                 System.out.println("ClientHandler sonlandı.");
                 //serverSocket.close();
                 System.exit(0); // Programı sonlandır
-            }
+            }*/
         } catch (IOException | InterruptedException e) {
-            Client nesne = new Client();
+
             //JOptionPane.showMessageDialog(nesne, e, "Yürütme Hatasi ClientHandler", MIN_PRIORITY);
             e.printStackTrace(System.out);
         }

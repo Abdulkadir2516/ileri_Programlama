@@ -1,6 +1,5 @@
 package Vize_proje.Me.Server;
 
-import Vize_proje.Recep.ClientHandler;
 import java.awt.event.ItemListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -78,10 +77,7 @@ public class Server extends javax.swing.JFrame {
 
         mesaj_trafigi.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
                 "Gönderen", "Alıcı", "İçerik"
@@ -240,8 +236,27 @@ public class Server extends javax.swing.JFrame {
         System.out.println(client_ip.getSelectedItem().toString());
         System.out.println(port_numbers.getSelectedItem().toString());*/
     }
+    
+    /*
+    ->DataInputStream ve DataOutputStream, Java'da veri okuma ve yazma işlemlerini 
+    kolaylaştıran sınıflardır ve genellikle düşük seviyeli veri türlerini 
+    işlemek için kullanılır.
+    ->DataInputStream: Veri girişi için kullanılır. Özellikle, bir giriş akışından 
+    Java'nın temel veri türlerini ve dize verilerini okumak için kullanılır. 
+    readInt(), readDouble(), readUTF() gibi yöntemlerle ilgili veri türlerini 
+    okuyabilirsiniz. Bu sınıf, dosyalar, soket bağlantıları gibi giriş 
+    kaynaklarından veri okumak için kullanılabilir.
+    ->DataOutputStream: Veri çıkışı için kullanılır. Java'nın temel veri türlerini 
+    ve dize verilerini belirli bir sırayla bir veri çıkış akışına yazmak için kullanılır. 
+    writeInt(), writeDouble(), writeUTF() gibi yöntemlerle ilgili veri türlerini 
+    yazabilirsiniz. Bu sınıf, dosyalar, soket bağlantıları gibi çıkış kaynaklarına 
+    veri yazmak için kullanılabilir.
+    **Bizde burada bir client'in diğer client'a mesaj göndermesi için DataOutputStream, 
+    gönderilen mesaji alacak olan client ve öncesinde mesajın ulaşacağı sunucu da 
+    bu mesajı DataInputStream ile alabileceği şekilde kodladık.
+     */
 
-    private void client_handler(Socket clientSocket) {
+    private void client_yonet(Socket clientSocket) {
         try {
             DataInputStream dataInputStream = new DataInputStream(clientSocket.getInputStream());
             DataOutputStream dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
@@ -280,7 +295,8 @@ public class Server extends javax.swing.JFrame {
                         }
                         count++;
                     }
-                   
+                    
+                    System.out.println("Gönderen ıp => "+senderIP+ " Alan ıp => "+ receiverIP +" ");
                     
                     // Yeni bir satır ekleyin
                     Object[] newRow = {senderIP, receiverIP, pureText};
@@ -297,16 +313,8 @@ public class Server extends javax.swing.JFrame {
                 }
             }
 
-            // Bekleme süresi
-            Thread.sleep(2000); // 2 saniye bekleyecek
-
-            // İstemciden gelen yeni veri yoksa sonlan
-            if (!isActive) {
-                System.out.println("ClientHandler sonlandı.");
-                clientSocket.close();
-                System.exit(0); // Programı sonlandır
-            }
-        } catch (IOException | InterruptedException e) {
+            
+        } catch (IOException e) {
 
             //JOptionPane.showMessageDialog(nesne, e, "Yürütme Hatasi ClientHandler", MIN_PRIORITY);
             e.printStackTrace(System.out);
@@ -330,6 +338,7 @@ public class Server extends javax.swing.JFrame {
     }
 
     private void server_start() {
+        
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server hazır!");
 
@@ -368,7 +377,7 @@ public class Server extends javax.swing.JFrame {
                     @Override
                     public void run() {
 
-                        client_handler(clientSocket);
+                        client_yonet(clientSocket);
 
                     }
                 });
